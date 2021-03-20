@@ -7,3 +7,6 @@
 [submodule "yuniframe"]
 	path = yuniframe
 	url = https://github.com/okuoku/yuniframe
+[submodule "ext/test/imgui"]
+	path = ext/test/imgui
+	url = https://github.com/ocornut/imgui
