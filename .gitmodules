@@ -4,3 +4,6 @@
 [submodule "ext/cwgl/angle"]
 	path = ext/cwgl/angle
 	url = https://github.com/google/angle
+[submodule "yuniframe"]
+	path = yuniframe
+	url = https://github.com/okuoku/yuniframe
