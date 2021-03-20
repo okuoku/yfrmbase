@@ -1,3 +1,6 @@
 [submodule "ext/platform/SDL"]
 	path = ext/platform/SDL
 	url = https://github.com/libsdl-org/SDL
+[submodule "ext/cwgl/angle"]
+	path = ext/cwgl/angle
+	url = https://github.com/google/angle
