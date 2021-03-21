@@ -10,3 +10,6 @@
 [submodule "ext/test/imgui"]
 	path = ext/test/imgui
 	url = https://github.com/ocornut/imgui
+[submodule "ext/cwgl/angle-static-cmake"]
+	path = ext/cwgl/angle-static-cmake
+	url = https://github.com/okuoku/angle-static-cmake
