@@ -13,3 +13,6 @@
 [submodule "ext/cwgl/angle-static-cmake"]
 	path = ext/cwgl/angle-static-cmake
 	url = https://github.com/okuoku/angle-static-cmake
+[submodule "ext/cwgl/chromium-zlib"]
+	path = ext/cwgl/chromium-zlib
+	url = https://github.com/okuoku/chromium-zlib
