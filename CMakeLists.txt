@@ -22,6 +22,9 @@ add_definitions(
     -DGL_API=
     -DGL_APIENTRY=
     -DGL_APICALL=
+
+    # Use DX11
+    -DYFRM_CWGL_USE_DX11
     )
 
 add_executable(fwtest
