@@ -33,11 +33,22 @@ add_definitions(
     -DYFRM_CWGL_USE_DX11
     )
 
+set(sdlmain)
 if(WINDOWS_STORE)
     add_definitions(-DYFRM_USE_UWP)
+    set(sdlmain
+        ext/platform/SDL/src/main/winrt/SDL_winrt_main_NonXAML.cpp)
+    set_source_files_properties(
+        ${sdlmain}
+        PROPERTIES
+        COMPILE_FLAGS /ZW
+        )
+elseif(WIN32)
+    set(sdlmain
+        ext/platform/SDL/src/main/windows/SDL_windows_main.c)
 endif()
 
-add_executable(fwtest
+add_executable(fwtest WIN32
     yuniframe/cwgl/src-gles2/cwgl-gles2-objstr.c
     yuniframe/cwgl/src-gles2/cwgl-gles2-priv.h
     yuniframe/cwgl/src-gles2/cwgl-gles2-s2.c
@@ -51,8 +62,10 @@ add_executable(fwtest
     yuniframe/platform/src-sdl2/yfrm-audio-sdl2.c
     yuniframe/platform/src-sdl2/yfrm-ctx-sdl2.c
     yuniframe/platform/src-sdl2/yfrm-events-sdl2.c
+    yuniframe/platform/src-sdl2/yfrm-main-sdl2.c
     yuniframe/platform/src-angle/yfrm-cwgl-angle.c
     yuniframe/platform/src-win/yfrm-gpu-d3d11.c
+    ${sdlmain}
     yuniframe/imgui/imgui_impl_cwgl.cpp
     yuniframe/imgui/imgui_impl_yfrm.cpp
     yuniframe/testimgui.cpp
@@ -61,8 +74,6 @@ add_executable(fwtest
     ext/test/imgui/imgui_draw.cpp
     ext/test/imgui/imgui_tables.cpp
     ext/test/imgui/imgui_widgets.cpp
-
-    main.c
     )
 
 target_link_libraries(fwtest
