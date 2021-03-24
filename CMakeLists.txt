@@ -30,6 +30,10 @@ add_definitions(
     -DYFRM_CWGL_USE_DX11
     )
 
+if(WINDOWS_STORE)
+    add_definitions(-DYFRM_USE_UWP)
+endif()
+
 add_executable(fwtest
     yuniframe/cwgl/src-gles2/cwgl-gles2-objstr.c
     yuniframe/cwgl/src-gles2/cwgl-gles2-priv.h
@@ -44,6 +48,8 @@ add_executable(fwtest
     yuniframe/platform/src-sdl2/yfrm-audio-sdl2.c
     yuniframe/platform/src-sdl2/yfrm-ctx-sdl2.c
     yuniframe/platform/src-sdl2/yfrm-events-sdl2.c
+    yuniframe/platform/src-angle/yfrm-cwgl-angle.c
+    yuniframe/platform/src-win/yfrm-gpu-d3d11.c
     yuniframe/imgui/imgui_impl_cwgl.cpp
     yuniframe/imgui/imgui_impl_yfrm.cpp
     yuniframe/testimgui.cpp
@@ -77,5 +83,8 @@ target_link_libraries(fwtest
     # angle
     dxgi
     dxguid
+
+    # dx11
+    d3d11
 
     )
