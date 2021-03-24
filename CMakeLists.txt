@@ -10,6 +10,9 @@ add_subdirectory(ext/cwgl/angle-static-cmake angle)
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 set(SDL_STATIC ON CACHE BOOL "" FORCE)
 add_subdirectory(ext/platform/SDL sdl)
+target_compile_definitions(SDL2-static
+    PUBLIC
+    IID_IDXGIFactory2=SDL_IID_IDXGIFactory2)
 
 include_directories(ext/platform/SDL/include)
 include_directories(ext/cwgl/angle/include)
@@ -86,5 +89,4 @@ target_link_libraries(fwtest
 
     # dx11
     d3d11
-
     )
