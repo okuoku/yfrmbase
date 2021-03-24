@@ -1,12 +1,14 @@
 cmake_minimum_required(VERSION 3.0)
-project(check C CXX)
+project(yfrm C CXX)
 
+# Configure ANGLE
 set(ANGLE_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/angle)
 set(CHROMIUM_ZLIB_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/chromium-zlib)
 add_subdirectory(ext/cwgl/angle-static-cmake angle)
 
-set(SDL_SHARED OFF FORCE CACHE BOOL "")
-set(SDL_STATIC ON FORCE CACHE BOOL "")
+# Configure SDL
+set(SDL_SHARED OFF CACHE BOOL "" FORCE)
+set(SDL_STATIC ON CACHE BOOL "" FORCE)
 add_subdirectory(ext/platform/SDL sdl)
 
 include_directories(ext/platform/SDL/include)
