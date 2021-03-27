@@ -48,7 +48,7 @@ elseif(WIN32)
         ext/platform/SDL/src/main/windows/SDL_windows_main.c)
 endif()
 
-add_executable(fwtest WIN32
+set(yfrmsrc
     yuniframe/cwgl/src-gles2/cwgl-gles2-objstr.c
     yuniframe/cwgl/src-gles2/cwgl-gles2-priv.h
     yuniframe/cwgl/src-gles2/cwgl-gles2-s2.c
@@ -65,6 +65,10 @@ add_executable(fwtest WIN32
     yuniframe/platform/src-sdl2/yfrm-main-sdl2.c
     yuniframe/platform/src-angle/yfrm-cwgl-angle.c
     yuniframe/platform/src-win/yfrm-gpu-d3d11.c
+    )
+
+add_executable(fwtest WIN32
+    ${yfrmsrc}
     ${sdlmain}
     yuniframe/imgui/imgui_impl_cwgl.cpp
     yuniframe/imgui/imgui_impl_yfrm.cpp
@@ -101,3 +105,7 @@ target_link_libraries(fwtest
     # dx11
     d3d11
     )
+
+add_library(yfrm OBJECT
+    ${yfrmsrc}
+    ${sdlmain})
