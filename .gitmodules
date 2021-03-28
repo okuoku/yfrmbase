@@ -16,3 +16,24 @@
 [submodule "ext/cwgl/chromium-zlib"]
 	path = ext/cwgl/chromium-zlib
 	url = https://github.com/okuoku/chromium-zlib
+[submodule "ext/cwgl/SPIRV-Tools"]
+	path = ext/cwgl/SPIRV-Tools
+	url = https://github.com/KhronosGroup/SPIRV-Tools
+[submodule "ext/cwgl/glslang"]
+	path = ext/cwgl/glslang
+	url = https://github.com/KhronosGroup/glslang
+[submodule "ext/cwgl/SPIRV-Cross"]
+	path = ext/cwgl/SPIRV-Cross
+	url = https://github.com/KhronosGroup/SPIRV-Cross
+[submodule "ext/cwgl/SPIRV-Headers"]
+	path = ext/cwgl/SPIRV-Headers
+	url = https://github.com/KhronosGroup/SPIRV-Headers
+[submodule "ext/cwgl/Vulkan-Headers"]
+	path = ext/cwgl/Vulkan-Headers
+	url = https://github.com/KhronosGroup/Vulkan-Headers
+[submodule "ext/cwgl/volk"]
+	path = ext/cwgl/volk
+	url = https://github.com/zeux/volk
+[submodule "ext/cwgl/VulkanMemoryAllocator"]
+	path = ext/cwgl/VulkanMemoryAllocator
+	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
