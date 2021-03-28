@@ -1,5 +1,30 @@
+set(YFRM_CWGL_USE_VULKAN ON)
+
 cmake_minimum_required(VERSION 3.0)
 project(yfrm C CXX)
+
+# Configure SPIR-V dependencies
+if(YFRM_CWGL_USE_VULKAN)
+    set(SPIRV_WERROR OFF CACHE BOOL "" FORCE)
+    set(SPIRV-Headers_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/SPIRV-Headers)
+    add_subdirectory(ext/cwgl/glslang glslang)
+    add_subdirectory(ext/cwgl/SPIRV-Tools SPIRV-Tools)
+
+    set(ANGLE_BACKEND Vulkan)
+    set(ANGLE_SPIRV_HEADERS_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/SPIRV-Headers)
+    set(ANGLE_VULKAN_HEADERS_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/Vulkan-Headers)
+    set(ANGLE_SPIRV_TOOLS_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/SPIRV-Tools)
+    set(ANGLE_VOLK_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/volk)
+    set(ANGLE_VMA_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/VulkanMemoryAllocator)
+    set(ANGLE_GLSLANG_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/glslang)
+
+    set(backend_libs
+        SPIRV-Tools
+        glslang
+        glslang-default-resource-limits
+        SPIRV
+        )
+endif()
 
 # Configure ANGLE
 set(ANGLE_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/angle)
@@ -28,10 +53,15 @@ add_definitions(
     -DGL_API=
     -DGL_APIENTRY=
     -DGL_APICALL=
-
-    # Use DX11
-    -DYFRM_CWGL_USE_DX11
     )
+
+add_definitions(-DYFRM_CWGL_USE_ANGLE)
+if(YFRM_CWGL_USE_VULKAN)
+    add_definitions(-DYFRM_CWGL_USE_VULKAN)
+else()
+    # Use DX11
+    add_definitions(-DYFRM_CWGL_USE_DX11)
+endif()
 
 set(sdlmain)
 if(WINDOWS_STORE)
@@ -104,6 +134,8 @@ target_link_libraries(fwtest
 
     # dx11
     d3d11
+
+    ${backend_libs}
     )
 
 add_library(yfrm OBJECT
