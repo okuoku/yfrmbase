@@ -1,4 +1,4 @@
-set(YFRM_CWGL_USE_VULKAN ON)
+set(YFRM_CWGL_USE_VULKAN OFF)
 
 cmake_minimum_required(VERSION 3.0)
 project(yfrm C CXX)
