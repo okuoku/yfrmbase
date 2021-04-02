@@ -1,4 +1,9 @@
 set(YFRM_CWGL_USE_VULKAN OFF)
+if("${YFRM_CWGL_BACKEND}" STREQUAL PlatformGLES)
+    set(YFRM_CWGL_USE_ANGLE OFF)
+else()
+    set(YFRM_CWGL_USE_ANGLE ON)
+endif()
 
 cmake_minimum_required(VERSION 3.0)
 project(yfrm C CXX)
@@ -27,9 +32,11 @@ if(YFRM_CWGL_USE_VULKAN)
 endif()
 
 # Configure ANGLE
-set(ANGLE_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/angle)
-set(CHROMIUM_ZLIB_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/chromium-zlib)
-add_subdirectory(ext/cwgl/angle-static-cmake angle)
+if(YFRM_CWGL_USE_ANGLE)
+    set(ANGLE_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/angle)
+    set(CHROMIUM_ZLIB_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/chromium-zlib)
+    add_subdirectory(ext/cwgl/angle-static-cmake angle)
+endif()
 
 # Configure SDL
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
@@ -40,7 +47,7 @@ target_compile_definitions(SDL2-static
     IID_IDXGIFactory2=SDL_IID_IDXGIFactory2)
 
 include_directories(ext/platform/SDL/include)
-include_directories(ext/cwgl/angle/include)
+include_directories(ext/cwgl/angle/include) # also provides GLES header
 include_directories(yuniframe/include)
 include_directories(ext/test/imgui)
 
@@ -55,12 +62,40 @@ add_definitions(
     -DGL_APICALL=
     )
 
-add_definitions(-DYFRM_CWGL_USE_ANGLE)
+set(yfrmsrc
+    yuniframe/cwgl/src-gles2/cwgl-gles2-objstr.c
+    yuniframe/cwgl/src-gles2/cwgl-gles2-priv.h
+    yuniframe/cwgl/src-gles2/cwgl-gles2-s2.c
+    yuniframe/cwgl/src-gles2/cwgl-gles2-s3.c
+    yuniframe/cwgl/src-gles2/cwgl-gles2-s4.c
+    yuniframe/cwgl/src-gles2/cwgl-gles2-s5.c
+    yuniframe/cwgl/src-gles2/cwgl-gles2-s6obj.c
+    yuniframe/cwgl/src-gles2/cwgl-gles2-s6shader.c
+    yuniframe/cwgl/src-gles2/cwgl-gles2-snone.c
+    yuniframe/platform/src-cxx17/yfrm-fs-cxx17.cpp
+    yuniframe/platform/src-sdl2/yfrm-audio-sdl2.c
+    yuniframe/platform/src-sdl2/yfrm-ctx-sdl2.c
+    yuniframe/platform/src-sdl2/yfrm-events-sdl2.c
+    yuniframe/platform/src-sdl2/yfrm-main-sdl2.c
+    )
+
 if(YFRM_CWGL_USE_VULKAN)
     add_definitions(-DYFRM_CWGL_USE_VULKAN)
 else()
-    # Use DX11
+endif()
+
+if(WIN32 OR WINDOWS_STORE)
     add_definitions(-DYFRM_CWGL_USE_DX11)
+    list(APPEND yfrmsrc
+        yuniframe/platform/src-win/yfrm-gpu-d3d11.c
+        )
+endif()
+
+if(YFRM_CWGL_USE_ANGLE)
+    add_definitions(-DYFRM_CWGL_USE_ANGLE)
+    list(APPEND yfrmsrc
+        yuniframe/platform/src-angle/yfrm-cwgl-angle.c
+        )
 endif()
 
 set(sdlmain)
@@ -78,65 +113,48 @@ elseif(WIN32)
         ext/platform/SDL/src/main/windows/SDL_windows_main.c)
 endif()
 
-set(yfrmsrc
-    yuniframe/cwgl/src-gles2/cwgl-gles2-objstr.c
-    yuniframe/cwgl/src-gles2/cwgl-gles2-priv.h
-    yuniframe/cwgl/src-gles2/cwgl-gles2-s2.c
-    yuniframe/cwgl/src-gles2/cwgl-gles2-s3.c
-    yuniframe/cwgl/src-gles2/cwgl-gles2-s4.c
-    yuniframe/cwgl/src-gles2/cwgl-gles2-s5.c
-    yuniframe/cwgl/src-gles2/cwgl-gles2-s6obj.c
-    yuniframe/cwgl/src-gles2/cwgl-gles2-s6shader.c
-    yuniframe/cwgl/src-gles2/cwgl-gles2-snone.c
-    yuniframe/platform/src-cxx17/yfrm-fs-cxx17.cpp
-    yuniframe/platform/src-sdl2/yfrm-audio-sdl2.c
-    yuniframe/platform/src-sdl2/yfrm-ctx-sdl2.c
-    yuniframe/platform/src-sdl2/yfrm-events-sdl2.c
-    yuniframe/platform/src-sdl2/yfrm-main-sdl2.c
-    yuniframe/platform/src-angle/yfrm-cwgl-angle.c
-    yuniframe/platform/src-win/yfrm-gpu-d3d11.c
-    )
+if(NOT YFRM_CWGL_BACKEND)
+    add_executable(fwtest WIN32
+        ${yfrmsrc}
+        ${sdlmain}
+        yuniframe/imgui/imgui_impl_cwgl.cpp
+        yuniframe/imgui/imgui_impl_yfrm.cpp
+        yuniframe/testimgui.cpp
+        ext/test/imgui/imgui.cpp
+        ext/test/imgui/imgui_demo.cpp
+        ext/test/imgui/imgui_draw.cpp
+        ext/test/imgui/imgui_tables.cpp
+        ext/test/imgui/imgui_widgets.cpp
+        )
 
-add_executable(fwtest WIN32
-    ${yfrmsrc}
-    ${sdlmain}
-    yuniframe/imgui/imgui_impl_cwgl.cpp
-    yuniframe/imgui/imgui_impl_yfrm.cpp
-    yuniframe/testimgui.cpp
-    ext/test/imgui/imgui.cpp
-    ext/test/imgui/imgui_demo.cpp
-    ext/test/imgui/imgui_draw.cpp
-    ext/test/imgui/imgui_tables.cpp
-    ext/test/imgui/imgui_widgets.cpp
-    )
+    target_link_libraries(fwtest
+        angle_static
+        SDL2-static
 
-target_link_libraries(fwtest
-    angle_static
-    SDL2-static
+        # SDL2
+        user32
+        gdi32
+        winmm
+        imm32
+        ole32
+        oleaut32
+        version
+        uuid
+        advapi32
+        setupapi
+        shell32
+        dinput8
 
-    # SDL2
-    user32
-    gdi32
-    winmm
-    imm32
-    ole32
-    oleaut32
-    version
-    uuid
-    advapi32
-    setupapi
-    shell32
-    dinput8
+        # angle
+        dxgi
+        dxguid
 
-    # angle
-    dxgi
-    dxguid
+        # dx11
+        d3d11
 
-    # dx11
-    d3d11
-
-    ${backend_libs}
-    )
+        ${backend_libs}
+        )
+endif()
 
 add_library(yfrm OBJECT
     ${yfrmsrc}
