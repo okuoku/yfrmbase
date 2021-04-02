@@ -4,6 +4,11 @@ if("${YFRM_CWGL_BACKEND}" STREQUAL PlatformGLES)
 else()
     set(YFRM_CWGL_USE_ANGLE ON)
 endif()
+if(ANDROID)
+    set(YFRM_FS_USE_SDL ON)
+else()
+    set(YFRM_FS_USE_CXX17 ON)
+endif()
 
 cmake_minimum_required(VERSION 3.0)
 project(yfrm C CXX)
@@ -72,12 +77,21 @@ set(yfrmsrc
     yuniframe/cwgl/src-gles2/cwgl-gles2-s6obj.c
     yuniframe/cwgl/src-gles2/cwgl-gles2-s6shader.c
     yuniframe/cwgl/src-gles2/cwgl-gles2-snone.c
-    yuniframe/platform/src-cxx17/yfrm-fs-cxx17.cpp
     yuniframe/platform/src-sdl2/yfrm-audio-sdl2.c
     yuniframe/platform/src-sdl2/yfrm-ctx-sdl2.c
     yuniframe/platform/src-sdl2/yfrm-events-sdl2.c
     yuniframe/platform/src-sdl2/yfrm-main-sdl2.c
     )
+
+if(YFRM_FS_USE_SDL)
+    list(APPEND yfrmsrc
+        yuniframe/platform/src-sdl2/yfrm-fs-sdl2.c
+        )
+elseif(YFRM_FS_USE_CXX17)
+    list(APPEND yfrmsrc
+        yuniframe/platform/src-cxx17/yfrm-fs-cxx17.cpp
+        )
+endif()
 
 if(YFRM_CWGL_USE_VULKAN)
     add_definitions(-DYFRM_CWGL_USE_VULKAN)
