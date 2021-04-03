@@ -4,7 +4,7 @@ if("${YFRM_CWGL_BACKEND}" STREQUAL PlatformGLES)
 else()
     set(YFRM_CWGL_USE_ANGLE ON)
 endif()
-if(ANDROID)
+if(ANDROID OR APPLE)
     set(YFRM_FS_USE_SDL ON)
 else()
     set(YFRM_FS_USE_CXX17 ON)
@@ -125,6 +125,13 @@ if(WINDOWS_STORE)
 elseif(WIN32)
     set(sdlmain
         ext/platform/SDL/src/main/windows/SDL_windows_main.c)
+elseif("${CMAKE_SYSTEM_NAME}" STREQUAL iOS OR
+        "${CMAKE_SYSTEM_NAME}" STREQUAL tvOS OR
+        "${CMAKE_SYSTEM_NAME}" STREQUAL watchOS)
+    # UIKit platforms
+    set(sdlmain
+        ext/platform/SDL/src/main/uikit/SDL_uikit_main.c
+        )
 endif()
 
 if(NOT YFRM_CWGL_BACKEND)
