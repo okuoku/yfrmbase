@@ -14,21 +14,32 @@ cmake_minimum_required(VERSION 3.0)
 project(yfrm C CXX)
 
 # Configure SPIR-V dependencies
-if(YFRM_CWGL_USE_VULKAN)
+if(YFRM_CWGL_USE_VULKAN OR YFRM_CWGL_USE_METAL)
     set(SPIRV_WERROR OFF CACHE BOOL "" FORCE)
     set(SPIRV-Headers_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/SPIRV-Headers)
     add_subdirectory(ext/cwgl/glslang glslang)
     add_subdirectory(ext/cwgl/SPIRV-Tools SPIRV-Tools)
+    if(YFRM_CWGL_USE_METAL)
+        add_subdirectory(ext/cwgl/SPIRV-Cross SPIRV-Cross)
+    endif()
 
-    set(ANGLE_BACKEND Vulkan)
     set(ANGLE_SPIRV_HEADERS_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/SPIRV-Headers)
     set(ANGLE_VULKAN_HEADERS_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/Vulkan-Headers)
     set(ANGLE_SPIRV_TOOLS_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/SPIRV-Tools)
-    set(ANGLE_VOLK_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/volk)
-    set(ANGLE_VMA_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/VulkanMemoryAllocator)
+    set(ANGLE_VOLK_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/volk) # Vulkan only?
+    set(ANGLE_VMA_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/VulkanMemoryAllocator) # Vulkan only?
     set(ANGLE_GLSLANG_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/glslang)
+    set(ANGLE_SPIRV_CROSS_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/SPIRV-Cross)
 
-    set(backend_libs
+    if(YFRM_CWGL_USE_METAL)
+        set(ANGLE_BACKEND Metal)
+        set(backend_libs spirv-cross-msl "-framework IOSurface")
+    else()
+        set(ANGLE_BACKEND Vulkan)
+        set(backend_libs)
+    endif()
+
+    list(APPEND backend_libs
         SPIRV-Tools
         glslang
         glslang-default-resource-limits
