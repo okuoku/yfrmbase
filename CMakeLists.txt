@@ -131,6 +131,9 @@ if(WINDOWS_STORE)
         COMPILE_FLAGS /ZW
         )
 elseif(WIN32)
+    list(APPEND yfrmsrc
+        yuniframe/platform/src-win/yfrm-execpath-win32.c
+        )
     set(sdlmain
         ext/platform/SDL/src/main/windows/SDL_windows_main.c)
 elseif("${CMAKE_SYSTEM_NAME}" STREQUAL iOS OR
