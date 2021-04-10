@@ -57,6 +57,7 @@ endif()
 # Configure SDL
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 set(SDL_STATIC ON CACHE BOOL "" FORCE)
+set(LIBC ON CACHE BOOL "" FORCE)
 add_subdirectory(ext/platform/SDL sdl)
 
 include_directories(ext/platform/SDL/include)
@@ -75,6 +76,15 @@ add_definitions(
     -DGL_APICALL=
     )
 
+if(YFRM_BUILD_MODULE)
+    add_definitions(
+        -DCWGL_DLL
+        -DCWGL_SHARED_BUILD
+        -DYFRM_DLL
+        -DYFRM_SHARED_BUILD
+        )
+endif()
+
 set(yfrmsrc
     yuniframe/cwgl/src-gles2/cwgl-gles2-objstr.c
     yuniframe/cwgl/src-gles2/cwgl-gles2-priv.h
@@ -88,8 +98,13 @@ set(yfrmsrc
     yuniframe/platform/src-sdl2/yfrm-audio-sdl2.c
     yuniframe/platform/src-sdl2/yfrm-ctx-sdl2.c
     yuniframe/platform/src-sdl2/yfrm-events-sdl2.c
-    yuniframe/platform/src-sdl2/yfrm-main-sdl2.c
     )
+
+if(NOT YFRM_BUILD_MODULE)
+    list(APPEND yfrmsrc
+        yuniframe/platform/src-sdl2/yfrm-main-sdl2.c
+    )
+endif()
 
 if(YFRM_FS_USE_SDL)
     list(APPEND yfrmsrc
@@ -145,24 +160,8 @@ elseif("${CMAKE_SYSTEM_NAME}" STREQUAL iOS OR
         )
 endif()
 
-if(NOT YFRM_CWGL_BACKEND)
-    add_executable(fwtest WIN32
-        ${yfrmsrc}
-        ${sdlmain}
-        yuniframe/imgui/imgui_impl_cwgl.cpp
-        yuniframe/imgui/imgui_impl_yfrm.cpp
-        yuniframe/testimgui.cpp
-        ext/test/imgui/imgui.cpp
-        ext/test/imgui/imgui_demo.cpp
-        ext/test/imgui/imgui_draw.cpp
-        ext/test/imgui/imgui_tables.cpp
-        ext/test/imgui/imgui_widgets.cpp
-        )
-
-    target_link_libraries(fwtest
-        angle_static
-        SDL2-static
-
+if(WIN32 OR WINDOWS_STORE)
+    set(platform_libs
         # SDL2
         user32
         gdi32
@@ -183,11 +182,51 @@ if(NOT YFRM_CWGL_BACKEND)
 
         # dx11
         d3d11
+        )
+endif()
+
+if(NOT YFRM_CWGL_BACKEND)
+    add_executable(fwtest WIN32
+        ${yfrmsrc}
+        ${sdlmain}
+        yuniframe/imgui/imgui_impl_cwgl.cpp
+        yuniframe/imgui/imgui_impl_yfrm.cpp
+        yuniframe/testimgui.cpp
+        ext/test/imgui/imgui.cpp
+        ext/test/imgui/imgui_demo.cpp
+        ext/test/imgui/imgui_draw.cpp
+        ext/test/imgui/imgui_tables.cpp
+        ext/test/imgui/imgui_widgets.cpp
+        )
+
+    target_link_libraries(fwtest
+        angle_static
+        SDL2-static
+
+        ${platform_libs}
 
         ${backend_libs}
         )
 endif()
 
-add_library(yfrm OBJECT
-    ${yfrmsrc}
-    ${sdlmain})
+if(YFRM_BUILD_MODULE)
+    add_library(yfrm SHARED
+        ${yfrmsrc})
+    target_link_libraries(yfrm
+        angle_static
+        SDL2-static
+        ${platform_libs}
+        ${backend_libs}
+        )
+    if(YFRM_DEBUG_COPY)
+        add_custom_command(TARGET yfrm POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            "$<TARGET_FILE:yfrm>"
+            "${YFRM_DEBUG_COPY}"
+            )
+    endif()
+else()
+    add_library(yfrm OBJECT
+        ${yfrmsrc}
+        ${sdlmain})
+endif()
