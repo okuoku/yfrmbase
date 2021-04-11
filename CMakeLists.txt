@@ -51,6 +51,7 @@ endif()
 if(YFRM_CWGL_USE_ANGLE)
     set(ANGLE_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/angle)
     set(CHROMIUM_ZLIB_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/chromium-zlib)
+    set(ANGLE_WORKAROUND_FAKEOBJCSOURCE ON)
     add_subdirectory(ext/cwgl/angle-static-cmake angle)
 endif()
 
@@ -58,6 +59,11 @@ endif()
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 set(SDL_STATIC ON CACHE BOOL "" FORCE)
 set(LIBC ON CACHE BOOL "" FORCE)
+if(APPLE)
+    # FIXME: Metal detection do not work on upstream SDL
+    #        we don't have to bothered with auto detection anyway, anyhow
+    set(HAVE_FRAMEWORK_METAL ON CACHE BOOL "" FORCE)
+endif()
 add_subdirectory(ext/platform/SDL sdl)
 
 include_directories(ext/platform/SDL/include)
