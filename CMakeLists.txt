@@ -17,9 +17,22 @@ project(yfrm C CXX)
 if(YFRM_CWGL_USE_VULKAN OR YFRM_CWGL_USE_METAL)
     set(SPIRV_WERROR OFF CACHE BOOL "" FORCE)
     set(SPIRV-Headers_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/SPIRV-Headers)
+    set(SKIP_GLSLANG_INSTALL OFF CACHE BOOL "" FORCE)
+    set(ENABLE_GLSLANG_BINARIES OFF CACHE BOOL "" FORCE)
     add_subdirectory(ext/cwgl/glslang glslang)
+    # Workaround for glslang-default-resource-limits
+    set(glslang-resource-limits-srcs
+        ext/cwgl/glslang/StandAlone/ResourceLimits.cpp
+        ext/cwgl/glslang/StandAlone/resource_limits_c.cpp)
+    add_library(my-glslang-default-resource-limits STATIC
+        ${glslang-resource-limits-srcs})
+
+    set(SKIP_SPIRV_TOOLS_INSTALL OFF CACHE BOOL "" FORCE)
+    set(SPIRV_SKIP_EXECUTABLES ON)
     add_subdirectory(ext/cwgl/SPIRV-Tools SPIRV-Tools)
     if(YFRM_CWGL_USE_METAL)
+        set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)
+        set(SPIRV_CROSS_SKIP_INSTALL ON CACHE BOOL "" FORCE)
         add_subdirectory(ext/cwgl/SPIRV-Cross SPIRV-Cross)
     endif()
 
@@ -42,7 +55,7 @@ if(YFRM_CWGL_USE_VULKAN OR YFRM_CWGL_USE_METAL)
     list(APPEND backend_libs
         SPIRV-Tools
         glslang
-        glslang-default-resource-limits
+        my-glslang-default-resource-limits
         SPIRV
         )
 endif()
