@@ -114,6 +114,7 @@ set(yfrmsrc
     yuniframe/cwgl/src-gles2/cwgl-gles2-s6obj.c
     yuniframe/cwgl/src-gles2/cwgl-gles2-s6shader.c
     yuniframe/cwgl/src-gles2/cwgl-gles2-snone.c
+    yuniframe/cwgl/src-gles2/cwgl-gles2-vao.c
     yuniframe/platform/src-sdl2/yfrm-audio-sdl2.c
     yuniframe/platform/src-sdl2/yfrm-ctx-sdl2.c
     yuniframe/platform/src-sdl2/yfrm-events-sdl2.c
