@@ -206,6 +206,12 @@ if(WIN32 OR WINDOWS_STORE)
 endif()
 
 if(NOT YFRM_CWGL_BACKEND)
+    if(MSVC)
+        target_compile_options(angle_static PRIVATE /MP)
+        target_compile_options(SDL2-static PRIVATE /MP)
+        add_compile_options(/MP)
+    endif()
+
     add_executable(fwtest WIN32
         ${yfrmsrc}
         ${sdlmain}
