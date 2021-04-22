@@ -1,4 +1,3 @@
-set(YFRM_CWGL_USE_VULKAN OFF)
 if("${YFRM_CWGL_BACKEND}" STREQUAL PlatformGLES)
     set(YFRM_CWGL_USE_ANGLE OFF)
 else()
@@ -8,6 +7,10 @@ if(ANDROID OR APPLE)
     set(YFRM_FS_USE_SDL ON)
 else()
     set(YFRM_FS_USE_CXX17 ON)
+endif()
+
+if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
+    set(YFRM_CWGL_USE_ANGLE OFF)
 endif()
 
 cmake_minimum_required(VERSION 3.0)
@@ -104,17 +107,36 @@ if(YFRM_BUILD_MODULE)
         )
 endif()
 
+if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
+    set(cwglsrc
+        yuniframe/cwgl/src-tracker/cwgl-tracker-objstr.c
+        yuniframe/cwgl/src-tracker/cwgl-tracker-priv.h
+        yuniframe/cwgl/src-tracker/cwgl-tracker-s2.c
+        yuniframe/cwgl/src-tracker/cwgl-tracker-s3.c
+        yuniframe/cwgl/src-tracker/cwgl-tracker-s4.c
+        yuniframe/cwgl/src-tracker/cwgl-tracker-s5.c
+        yuniframe/cwgl/src-tracker/cwgl-tracker-s6obj.c
+        yuniframe/cwgl/src-tracker/cwgl-tracker-s6shader.c
+        yuniframe/cwgl/src-tracker/cwgl-tracker-snone.c
+        yuniframe/cwgl/src-tracker/cwgl-tracker-vao.c
+        )
+else()
+    set(cwglsrc
+        yuniframe/cwgl/src-gles2/cwgl-gles2-objstr.c
+        yuniframe/cwgl/src-gles2/cwgl-gles2-priv.h
+        yuniframe/cwgl/src-gles2/cwgl-gles2-s2.c
+        yuniframe/cwgl/src-gles2/cwgl-gles2-s3.c
+        yuniframe/cwgl/src-gles2/cwgl-gles2-s4.c
+        yuniframe/cwgl/src-gles2/cwgl-gles2-s5.c
+        yuniframe/cwgl/src-gles2/cwgl-gles2-s6obj.c
+        yuniframe/cwgl/src-gles2/cwgl-gles2-s6shader.c
+        yuniframe/cwgl/src-gles2/cwgl-gles2-snone.c
+        yuniframe/cwgl/src-gles2/cwgl-gles2-vao.c
+        )
+endif()
+
 set(yfrmsrc
-    yuniframe/cwgl/src-gles2/cwgl-gles2-objstr.c
-    yuniframe/cwgl/src-gles2/cwgl-gles2-priv.h
-    yuniframe/cwgl/src-gles2/cwgl-gles2-s2.c
-    yuniframe/cwgl/src-gles2/cwgl-gles2-s3.c
-    yuniframe/cwgl/src-gles2/cwgl-gles2-s4.c
-    yuniframe/cwgl/src-gles2/cwgl-gles2-s5.c
-    yuniframe/cwgl/src-gles2/cwgl-gles2-s6obj.c
-    yuniframe/cwgl/src-gles2/cwgl-gles2-s6shader.c
-    yuniframe/cwgl/src-gles2/cwgl-gles2-snone.c
-    yuniframe/cwgl/src-gles2/cwgl-gles2-vao.c
+    ${cwglsrc}
     yuniframe/platform/src-sdl2/yfrm-audio-sdl2.c
     yuniframe/platform/src-sdl2/yfrm-ctx-sdl2.c
     yuniframe/platform/src-sdl2/yfrm-events-sdl2.c
@@ -207,7 +229,9 @@ endif()
 
 if(NOT YFRM_CWGL_BACKEND)
     if(MSVC)
-        target_compile_options(angle_static PRIVATE /MP)
+        if(YFRM_CWGL_USE_ANGLE)
+            target_compile_options(angle_static PRIVATE /MP)
+        endif()
         target_compile_options(SDL2-static PRIVATE /MP)
         add_compile_options(/MP)
     endif()
@@ -225,8 +249,12 @@ if(NOT YFRM_CWGL_BACKEND)
         ext/test/imgui/imgui_widgets.cpp
         )
 
+    if(YFRM_CWGL_USE_ANGLE)
+        set(gles_libs angle_static)
+    endif()
+
     target_link_libraries(fwtest
-        angle_static
+        ${gles_libs}
         SDL2-static
 
         ${platform_libs}
