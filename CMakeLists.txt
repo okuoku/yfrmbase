@@ -160,15 +160,13 @@ endif()
 
 if(YFRM_CWGL_USE_VULKAN)
     add_definitions(-DYFRM_CWGL_USE_VULKAN)
-else()
-endif()
-
-if(WIN32 OR WINDOWS_STORE)
+elseif(WIN32 OR WINDOWS_STORE)
     add_definitions(-DYFRM_CWGL_USE_DX11)
     list(APPEND yfrmsrc
         yuniframe/platform/src-win/yfrm-gpu-d3d11.c
         )
 endif()
+
 
 if(YFRM_CWGL_USE_ANGLE)
     add_definitions(-DYFRM_CWGL_USE_ANGLE)
