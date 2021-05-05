@@ -119,6 +119,7 @@ if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
         yuniframe/cwgl/src-tracker/cwgl-tracker-s6shader.c
         yuniframe/cwgl/src-tracker/cwgl-tracker-snone.c
         yuniframe/cwgl/src-tracker/cwgl-tracker-vao.c
+        yuniframe/cwgl/src-tracker/cwgl-tracker-init.c
         )
 else()
     set(cwglsrc
