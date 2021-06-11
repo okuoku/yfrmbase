@@ -108,6 +108,10 @@ if(YFRM_BUILD_MODULE)
 endif()
 
 if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
+    include_directories(
+        yuniframe/cwgl/src-tracker
+        yuniframe/cwgl/src-tgles2
+        )
     set(cwglsrc
         yuniframe/cwgl/src-tracker/cwgl-tracker-objstr.c
         yuniframe/cwgl/src-tracker/cwgl-tracker-priv.h
@@ -120,6 +124,24 @@ if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
         yuniframe/cwgl/src-tracker/cwgl-tracker-snone.c
         yuniframe/cwgl/src-tracker/cwgl-tracker-vao.c
         yuniframe/cwgl/src-tracker/cwgl-tracker-init.c
+
+        yuniframe/cwgl/src-tgles2/cwgl-gles2-ctx.c
+        yuniframe/cwgl/src-tgles2/cwgl-gles2-obj.c
+        yuniframe/cwgl/src-tgles2/cwgl-gles2-draw.c
+        yuniframe/cwgl/src-tgles2/cwgl-gles2-shader.c
+        yuniframe/cwgl/src-tgles2/cwgl-gles2-fb.c
+        yuniframe/cwgl/src-tgles2/cwgl-gles2-queue.c
+        yuniframe/cwgl/src-tgles2/cwgl-gles2-mipmap.c
+        yuniframe/cwgl/src-tgles2/cwgl-gles2-buffer.c
+        yuniframe/cwgl/src-tgles2/cwgl-gles2-texture.c
+        )
+    add_definitions(-DCWGL_EXPERIMENTAL_TRACKER)
+    link_directories(
+        "C:/Imagination Technologies/PowerVR_Graphics/PowerVR_Tools/PVRVFrame/Library/Windows_x86_64"
+        )
+    set(platform_libs
+        libEGL
+        libGLESv2
         )
 else()
     set(cwglsrc
@@ -201,7 +223,7 @@ elseif("${CMAKE_SYSTEM_NAME}" STREQUAL iOS OR
         )
 endif()
 
-if(WIN32 OR WINDOWS_STORE)
+if((WIN32 OR WINDOWS_STORE) AND NOT YFRM_CWGL_EXPERIMENTAL_TRACKER)
     set(platform_libs
         # SDL2
         user32
