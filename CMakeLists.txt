@@ -1,21 +1,40 @@
-if("${YFRM_CWGL_BACKEND}" STREQUAL PlatformGLES)
+# Select CWGL rendering frontend
+#   YFRM_CWGL_EXPERIMENTAL_TRACKER: C-WebGL Tracker
+#   YFRM_CWGL_USE_GLES: Khronos compatible platform GLES
+#   YFRM_CWGL_USE_ANGLE: ANGLE (in-tree)
+#   YFRM_CWGL_USE_PVRVFRAME: Windows PVR VFrame emu
+if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
+elseif(YFRM_CWGL_USE_ANGLE)
+elseif("${YFRM_CWGL_BACKEND}" STREQUAL PlatformGLES)
     set(YFRM_CWGL_USE_ANGLE OFF)
-else()
-    set(YFRM_CWGL_USE_ANGLE ON)
-endif()
-if(ANDROID OR APPLE)
-    set(YFRM_FS_USE_SDL ON)
-else()
-    set(YFRM_FS_USE_CXX17 ON)
+    set(YFRM_CWGL_USE_GLES ON)
 endif()
 
-if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
-    set(YFRM_CWGL_USE_ANGLE OFF)
+# Select CWGL rendering backend
+#   YFRM_CWGL_USE_DX11: DirectX11
+#   YFRM_CWGL_USE_METAL: Metal
+#   YFRM_CWGL_USE_VULKAN: Vulkan
+if(YFRM_CWGL_USE_VULKAN)
+elseif(YFRM_CWGL_USE_METAL)
+elseif(WIN32 OR WINDOWS_STORE)
+    set(YFRM_CWGL_USE_DX11 ON)
+endif()
+
+# Select FS backend
+#   YFRM_FS_USE_SDL: SDL filesystem
+#   YFRM_FS_USE_CXX17: C++17 <filesystem>
+if(ANDROID OR APPLE)
+    # SDL filesystem
+    set(YFRM_FS_USE_SDL ON)
+else()
+    # <filesystem> backend
+    set(YFRM_FS_USE_CXX17 ON)
 endif()
 
 cmake_minimum_required(VERSION 3.0)
 project(yfrm C CXX)
 
+set(backend_libs)
 # Configure SPIR-V dependencies
 if(YFRM_CWGL_USE_VULKAN OR YFRM_CWGL_USE_METAL)
     set(SPIRV_WERROR OFF CACHE BOOL "" FORCE)
@@ -33,27 +52,6 @@ if(YFRM_CWGL_USE_VULKAN OR YFRM_CWGL_USE_METAL)
     set(SKIP_SPIRV_TOOLS_INSTALL OFF CACHE BOOL "" FORCE)
     set(SPIRV_SKIP_EXECUTABLES ON)
     add_subdirectory(ext/cwgl/SPIRV-Tools SPIRV-Tools)
-    if(YFRM_CWGL_USE_METAL)
-        set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)
-        set(SPIRV_CROSS_SKIP_INSTALL ON CACHE BOOL "" FORCE)
-        add_subdirectory(ext/cwgl/SPIRV-Cross SPIRV-Cross)
-    endif()
-
-    set(ANGLE_SPIRV_HEADERS_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/SPIRV-Headers)
-    set(ANGLE_VULKAN_HEADERS_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/Vulkan-Headers)
-    set(ANGLE_SPIRV_TOOLS_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/SPIRV-Tools)
-    set(ANGLE_VOLK_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/volk) # Vulkan only?
-    set(ANGLE_VMA_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/VulkanMemoryAllocator) # Vulkan only?
-    set(ANGLE_GLSLANG_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/glslang)
-    set(ANGLE_SPIRV_CROSS_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/SPIRV-Cross)
-
-    if(YFRM_CWGL_USE_METAL)
-        set(ANGLE_BACKEND Metal)
-        set(backend_libs spirv-cross-msl "-framework IOSurface")
-    else()
-        set(ANGLE_BACKEND Vulkan)
-        set(backend_libs)
-    endif()
 
     list(APPEND backend_libs
         SPIRV-Tools
@@ -65,6 +63,28 @@ endif()
 
 # Configure ANGLE
 if(YFRM_CWGL_USE_ANGLE)
+    set(ANGLE_SPIRV_HEADERS_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/SPIRV-Headers)
+    set(ANGLE_VULKAN_HEADERS_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/Vulkan-Headers)
+    set(ANGLE_SPIRV_TOOLS_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/SPIRV-Tools)
+    set(ANGLE_VOLK_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/volk) # Vulkan only?
+    set(ANGLE_VMA_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/VulkanMemoryAllocator) # Vulkan only?
+    set(ANGLE_GLSLANG_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/glslang)
+    set(ANGLE_SPIRV_CROSS_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/SPIRV-Cross)
+
+    if(YFRM_CWGL_USE_METAL)
+        set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)
+        set(SPIRV_CROSS_SKIP_INSTALL ON CACHE BOOL "" FORCE)
+        add_subdirectory(ext/cwgl/SPIRV-Cross SPIRV-Cross)
+    endif()
+
+    if(YFRM_CWGL_USE_METAL)
+        set(ANGLE_BACKEND Metal)
+        set(backend_libs spirv-cross-msl "-framework IOSurface")
+    else()
+        set(ANGLE_BACKEND Vulkan)
+        set(backend_libs)
+    endif()
+
     set(ANGLE_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/angle)
     set(CHROMIUM_ZLIB_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/chromium-zlib)
     set(ANGLE_WORKAROUND_FAKEOBJCSOURCE ON)
@@ -223,7 +243,7 @@ elseif("${CMAKE_SYSTEM_NAME}" STREQUAL iOS OR
         )
 endif()
 
-if((WIN32 OR WINDOWS_STORE) AND NOT YFRM_CWGL_EXPERIMENTAL_TRACKER)
+if((WIN32 OR WINDOWS_STORE) AND NOT YFRM_CWGL_USE_PVRVFRAME)
     set(platform_libs
         # SDL2
         user32
@@ -246,6 +266,15 @@ if((WIN32 OR WINDOWS_STORE) AND NOT YFRM_CWGL_EXPERIMENTAL_TRACKER)
         # dx11
         d3d11
         )
+elseif(YFRM_CWGL_USE_PVRVFRAME)
+    set(gles_libs
+        libEGL
+        libGLESv2
+        )
+endif()
+
+if(YFRM_CWGL_USE_ANGLE)
+    set(gles_libs angle_static)
 endif()
 
 if(NOT YFRM_CWGL_BACKEND)
@@ -270,9 +299,6 @@ if(NOT YFRM_CWGL_BACKEND)
         ext/test/imgui/imgui_widgets.cpp
         )
 
-    if(YFRM_CWGL_USE_ANGLE)
-        set(gles_libs angle_static)
-    endif()
 
     target_link_libraries(fwtest
         ${gles_libs}
@@ -288,7 +314,7 @@ if(YFRM_BUILD_MODULE)
     add_library(yfrm SHARED
         ${yfrmsrc})
     target_link_libraries(yfrm
-        angle_static
+        ${gles_libs}
         SDL2-static
         ${platform_libs}
         ${backend_libs}
