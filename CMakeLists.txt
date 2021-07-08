@@ -79,10 +79,9 @@ if(YFRM_CWGL_USE_ANGLE)
 
     if(YFRM_CWGL_USE_METAL)
         set(ANGLE_BACKEND Metal)
-        set(backend_libs spirv-cross-msl "-framework IOSurface")
+        list(APPEND backend_libs spirv-cross-msl "-framework IOSurface")
     else()
         set(ANGLE_BACKEND Vulkan)
-        set(backend_libs)
     endif()
 
     set(ANGLE_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/angle)
