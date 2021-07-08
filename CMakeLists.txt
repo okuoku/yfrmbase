@@ -50,7 +50,7 @@ if(YFRM_CWGL_USE_VULKAN OR YFRM_CWGL_USE_METAL)
         ${glslang-resource-limits-srcs})
 
     set(SKIP_SPIRV_TOOLS_INSTALL OFF CACHE BOOL "" FORCE)
-    set(SPIRV_SKIP_EXECUTABLES ON)
+    set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "" FORCE)
     add_subdirectory(ext/cwgl/SPIRV-Tools SPIRV-Tools)
 
     list(APPEND backend_libs
