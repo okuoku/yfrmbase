@@ -16,6 +16,7 @@ endif()
 #   YFRM_CWGL_USE_VULKAN: Vulkan
 if(YFRM_CWGL_USE_VULKAN)
 elseif(YFRM_CWGL_USE_METAL)
+elseif(YFRM_CWGL_USE_GLES)
 elseif(WIN32 OR WINDOWS_STORE)
     set(YFRM_CWGL_USE_DX11 ON)
 endif()
@@ -159,13 +160,6 @@ if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
         yuniframe/cwgl/src-tgles2/cwgl-gles2-texture.c
         )
     add_definitions(-DCWGL_EXPERIMENTAL_TRACKER)
-    link_directories(
-        "C:/Imagination Technologies/PowerVR_Graphics/PowerVR_Tools/PVRVFrame/Library/Windows_x86_64"
-        )
-    set(platform_libs
-        libEGL
-        libGLESv2
-        )
 else()
     set(cwglsrc
         yuniframe/cwgl/src-gles2/cwgl-gles2-objstr.c
@@ -280,7 +274,7 @@ if(YFRM_CWGL_USE_ANGLE)
     set(gles_libs angle_static)
 endif()
 
-if(NOT YFRM_CWGL_BACKEND)
+if(YFRM_BUILD_TEST)
     if(MSVC)
         if(YFRM_CWGL_USE_ANGLE)
             target_compile_options(angle_static PRIVATE /MP)
