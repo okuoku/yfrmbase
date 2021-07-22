@@ -60,6 +60,11 @@ if(YFRM_CWGL_USE_VULKAN OR YFRM_CWGL_USE_METAL)
         my-glslang-default-resource-limits
         SPIRV
         )
+    if(YFRM_CWGL_USE_METAL OR YFRM_CWGL_EXPERIMENTAL_TRACKER)
+        set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)
+        set(SPIRV_CROSS_SKIP_INSTALL ON CACHE BOOL "" FORCE)
+        add_subdirectory(ext/cwgl/SPIRV-Cross SPIRV-Cross)
+    endif()
 endif()
 
 # Configure ANGLE
@@ -71,12 +76,6 @@ if(YFRM_CWGL_USE_ANGLE)
     set(ANGLE_VMA_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/VulkanMemoryAllocator) # Vulkan only?
     set(ANGLE_GLSLANG_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/glslang)
     set(ANGLE_SPIRV_CROSS_ROOT ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/SPIRV-Cross)
-
-    if(YFRM_CWGL_USE_METAL)
-        set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)
-        set(SPIRV_CROSS_SKIP_INSTALL ON CACHE BOOL "" FORCE)
-        add_subdirectory(ext/cwgl/SPIRV-Cross SPIRV-Cross)
-    endif()
 
     if(YFRM_CWGL_USE_METAL)
         set(ANGLE_BACKEND Metal)
@@ -132,10 +131,7 @@ if(YFRM_BUILD_MODULE)
 endif()
 
 if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
-    include_directories(
-        yuniframe/cwgl/src-tracker
-        yuniframe/cwgl/src-tgles2
-        )
+    include_directories(yuniframe/cwgl/src-tracker)
     set(cwglsrc
         yuniframe/cwgl/src-tracker/cwgl-tracker-objstr.c
         yuniframe/cwgl/src-tracker/cwgl-tracker-priv.h
@@ -148,18 +144,52 @@ if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
         yuniframe/cwgl/src-tracker/cwgl-tracker-snone.c
         yuniframe/cwgl/src-tracker/cwgl-tracker-vao.c
         yuniframe/cwgl/src-tracker/cwgl-tracker-init.c
-
-        yuniframe/cwgl/src-tgles2/cwgl-gles2-ctx.c
-        yuniframe/cwgl/src-tgles2/cwgl-gles2-obj.c
-        yuniframe/cwgl/src-tgles2/cwgl-gles2-draw.c
-        yuniframe/cwgl/src-tgles2/cwgl-gles2-shader.c
-        yuniframe/cwgl/src-tgles2/cwgl-gles2-fb.c
-        yuniframe/cwgl/src-tgles2/cwgl-gles2-queue.c
-        yuniframe/cwgl/src-tgles2/cwgl-gles2-mipmap.c
-        yuniframe/cwgl/src-tgles2/cwgl-gles2-buffer.c
-        yuniframe/cwgl/src-tgles2/cwgl-gles2-texture.c
         )
     add_definitions(-DCWGL_EXPERIMENTAL_TRACKER)
+
+    if(YFRM_CWGL_USE_VULKAN)
+        include_directories(
+            ext/cwgl/SPIRV-Tools/include
+            ext/cwgl/SPIRV-Cross
+            ext/cwgl/glslang
+            ext/cwgl/glslang/glslang/Public
+            )
+        list(APPEND cwglsrc
+            # CWGL
+            yuniframe/cwgl/src-vulkan/cwgl-vk-ctx.c
+            yuniframe/cwgl/src-vulkan/cwgl-vk-obj.c
+            yuniframe/cwgl/src-vulkan/cwgl-vk-draw.c
+            yuniframe/cwgl/src-vulkan/cwgl-vk-shader.c
+            yuniframe/cwgl/src-vulkan/cwgl-vk-fb.c
+            yuniframe/cwgl/src-vulkan/cwgl-vk-queue.c
+            yuniframe/cwgl/src-vulkan/cwgl-vk-mipmap.c
+            yuniframe/cwgl/src-vulkan/cwgl-vk-buffer.c
+            yuniframe/cwgl/src-vulkan/cwgl-vk-texture.c
+            # SHXM
+            yuniframe/shxm/src/shxm_glslang.cpp
+            yuniframe/shxm/src/shxm_linker.c
+            yuniframe/shxm/src/shxm_obj.c
+            yuniframe/shxm/src/shxm_patcher.c
+            yuniframe/shxm/src/shxm_spirv_decomp.c
+            yuniframe/shxm/src/shxm_spirv_reader.c
+            yuniframe/shxm/src/shxm_spvopt.cpp
+            yuniframe/shxm/src/shxm_util_buf.c
+            )
+    else()
+        include_directories(yuniframe/cwgl/src-tgles2)
+        list(APPEND cwglsrc
+            yuniframe/cwgl/src-tgles2/cwgl-gles2-ctx.c
+            yuniframe/cwgl/src-tgles2/cwgl-gles2-obj.c
+            yuniframe/cwgl/src-tgles2/cwgl-gles2-draw.c
+            yuniframe/cwgl/src-tgles2/cwgl-gles2-shader.c
+            yuniframe/cwgl/src-tgles2/cwgl-gles2-fb.c
+            yuniframe/cwgl/src-tgles2/cwgl-gles2-queue.c
+            yuniframe/cwgl/src-tgles2/cwgl-gles2-mipmap.c
+            yuniframe/cwgl/src-tgles2/cwgl-gles2-buffer.c
+            yuniframe/cwgl/src-tgles2/cwgl-gles2-texture.c
+            )
+    endif()
+
 else()
     set(cwglsrc
         yuniframe/cwgl/src-gles2/cwgl-gles2-objstr.c
