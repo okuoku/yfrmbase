@@ -153,6 +153,7 @@ if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
             ext/cwgl/SPIRV-Cross
             ext/cwgl/glslang
             ext/cwgl/glslang/glslang/Public
+            yuniframe/shxm/include
             )
         list(APPEND cwglsrc
             # CWGL
