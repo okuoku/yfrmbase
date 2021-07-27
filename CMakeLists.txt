@@ -301,6 +301,21 @@ elseif(YFRM_CWGL_USE_PVRVFRAME)
         )
 endif()
 
+if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
+    if(YFRM_CWGL_USE_VULKAN)
+        set(gles_libs
+            # SHXM
+            SPIRV-Tools
+            glslang
+            my-glslang-default-resource-limits
+            spirv-cross-c
+            SPIRV
+            SPIRV-Tools
+            SPIRV-Tools-opt
+            )
+    endif()
+endif()
+
 if(YFRM_CWGL_USE_ANGLE)
     set(gles_libs angle_static)
 endif()
