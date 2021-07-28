@@ -371,10 +371,18 @@ if(YFRM_BUILD_MODULE)
 
     target_link_libraries(yfrm ${total})
     if(YFRM_DEBUG_COPY)
+        if(WIN32)
+            set(maybe_symlink)
+        else()
+            set(maybe_symlink
+                COMMAND ln -s "$<TARGET_FILE:yfrm>"
+                "${YFRM_DEBUG_COPY}/yfrm.dll")
+        endif()
         add_custom_command(TARGET yfrm POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             "$<TARGET_FILE:yfrm>"
             "${YFRM_DEBUG_COPY}"
+            ${maybe_symlink}
             )
     endif()
 else()
