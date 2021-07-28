@@ -3,11 +3,8 @@
 #   YFRM_CWGL_USE_GLES: Khronos compatible platform GLES
 #   YFRM_CWGL_USE_ANGLE: ANGLE (in-tree)
 #   YFRM_CWGL_USE_PVRVFRAME: Windows PVR VFrame emu
-if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
-elseif(YFRM_CWGL_USE_ANGLE)
-elseif("${YFRM_CWGL_BACKEND}" STREQUAL PlatformGLES)
-    set(YFRM_CWGL_USE_ANGLE OFF)
-    set(YFRM_CWGL_USE_GLES ON)
+if(YFRM_CWGL_USE_PVRVFRAME)
+    set(YFRM_CWGL_USE_PLATFORMGLES ON)
 endif()
 
 # Select CWGL rendering backend
@@ -294,11 +291,15 @@ if((WIN32 OR WINDOWS_STORE) AND NOT YFRM_CWGL_USE_PVRVFRAME)
         # dx11
         d3d11
         )
-elseif(YFRM_CWGL_USE_PVRVFRAME)
-    set(gles_libs
-        libEGL
-        libGLESv2
-        )
+elseif(YFRM_CWGL_USE_PLATFORMGLES)
+    if(MSVC)
+        set(gles_libs
+            libEGL
+            libGLESv2
+            )
+    else()
+        set(gles_libs EGL GLESv2)
+    endif()
 endif()
 
 if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
@@ -356,12 +357,19 @@ endif()
 if(YFRM_BUILD_MODULE)
     add_library(yfrm SHARED
         ${yfrmsrc})
-    target_link_libraries(yfrm
+    set(total
         ${gles_libs}
         SDL2-static
         ${platform_libs}
-        ${backend_libs}
-        )
+        ${backend_libs})
+    foreach(e ${total})
+        if(TARGET ${e})
+            set_property(TARGET ${e}
+                PROPERTY POSITION_INDEPENDENT_CODE ON)
+        endif()
+    endforeach()
+
+    target_link_libraries(yfrm ${total})
     if(YFRM_DEBUG_COPY)
         add_custom_command(TARGET yfrm POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
