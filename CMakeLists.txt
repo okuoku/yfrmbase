@@ -52,7 +52,7 @@ if(YFRM_CWGL_USE_VULKAN OR YFRM_CWGL_USE_METAL)
     add_subdirectory(ext/cwgl/SPIRV-Tools SPIRV-Tools)
 
     list(APPEND backend_libs
-        SPIRV-Tools
+        SPIRV-Tools-static
         glslang
         my-glslang-default-resource-limits
         SPIRV
@@ -306,12 +306,11 @@ if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
     if(YFRM_CWGL_USE_VULKAN)
         set(gles_libs
             # SHXM
-            SPIRV-Tools
             glslang
             my-glslang-default-resource-limits
             spirv-cross-c
             SPIRV
-            SPIRV-Tools
+            SPIRV-Tools-static
             SPIRV-Tools-opt
             )
     endif()
