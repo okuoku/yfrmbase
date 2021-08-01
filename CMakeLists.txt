@@ -145,6 +145,12 @@ if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
     add_definitions(-DCWGL_EXPERIMENTAL_TRACKER)
 
     if(YFRM_CWGL_USE_VULKAN)
+        add_definitions(-DCWGL_EXPERIMENTAL_USE_VOLK)
+        include_directories(
+            ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/Vulkan-Headers/include)
+        include_directories(
+            ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/volk
+            )
         include_directories(
             ext/cwgl/SPIRV-Tools/include
             ext/cwgl/SPIRV-Cross
@@ -153,6 +159,8 @@ if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
             yuniframe/shxm/include
             )
         list(APPEND cwglsrc
+            # Volk
+            ${CMAKE_CURRENT_LIST_DIR}/ext/cwgl/volk/volk.c
             # CWGL
             yuniframe/cwgl/src-vulkan/cwgl-vk-ctx.c
             yuniframe/cwgl/src-vulkan/cwgl-vk-obj.c
