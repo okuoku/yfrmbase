@@ -181,6 +181,7 @@ if(YFRM_CWGL_EXPERIMENTAL_TRACKER)
             yuniframe/shxm/src/shxm_spvopt.cpp
             yuniframe/shxm/src/shxm_util_buf.c
             yuniframe/shxm/src/shxm_ms_test0.cpp
+            yuniframe/shxm/src/shxm_ms_asm0.c
             )
     else()
         include_directories(yuniframe/cwgl/src-tgles2)
