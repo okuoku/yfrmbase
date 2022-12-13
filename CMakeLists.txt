@@ -49,6 +49,10 @@ if(YFRM_CWGL_USE_VULKAN OR YFRM_CWGL_USE_METAL)
 
     set(SKIP_SPIRV_TOOLS_INSTALL OFF CACHE BOOL "" FORCE)
     set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "" FORCE)
+    if(APPLE)
+        message(STATUS "Enforcing python executable at /usr/bin")
+        set(PYTHON_EXECUTABLE "/usr/bin/python3" CACHE STRING "" FORCE)
+    endif()
     add_subdirectory(ext/cwgl/SPIRV-Tools SPIRV-Tools)
 
     list(APPEND backend_libs
