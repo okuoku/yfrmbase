@@ -44,6 +44,7 @@ if(YFRM_CWGL_USE_VULKAN OR YFRM_CWGL_USE_METAL)
     set(glslang-resource-limits-srcs
         ext/cwgl/glslang/StandAlone/ResourceLimits.cpp
         ext/cwgl/glslang/StandAlone/resource_limits_c.cpp)
+    include_directories(ext/cwgl/glslang)
     add_library(my-glslang-default-resource-limits STATIC
         ${glslang-resource-limits-srcs})
 
