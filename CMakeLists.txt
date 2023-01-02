@@ -117,10 +117,11 @@ set(CMAKE_CXX_STANDARD 17)
 add_definitions(
     # Use static-link
     -DANGLE_EXPORT=
-    -DEGLAPI=
-    -DGL_API=
-    -DGL_APIENTRY=
-    -DGL_APICALL=
+    -DKHRONOS_STATIC
+    #-DEGLAPI=
+    #-DGL_API=
+    #-DGL_APIENTRY=
+    #-DGL_APICALL=
     )
 
 if(YFRM_BUILD_MODULE)
